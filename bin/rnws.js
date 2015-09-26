@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
-const path = require('path');
 const fs = require('fs');
+const path = require('path');
+const _ = require('lodash');
 const program = require('commander');
 const package = require('../package.json');
-const fetch = require('../lib/fetch');
+const createBundle = require('../lib/createBundle');
 const Server = require('../lib/Server');
 
 /**
@@ -53,12 +54,13 @@ function commonOptions(program) {
       'webpack.config.js'
     )
     .option(
-      '-e, --entry [name]',
-      'Webpack entry module. [index.ios]',
-      'index.ios'
+      '-e, --entries [names]',
+      'Webpack entry module(s) to be served as \'[name].bundle\'. [index.ios,index.android]',
+      val => val.split(','),
+      ['index.ios', 'index.android']
     );
 }
-  
+
 program.version(package.version);
 
 commonOptions(program.command('start'))
@@ -72,16 +74,30 @@ commonOptions(program.command('start'))
 
 commonOptions(program.command('bundle'))
   .description('Bundle the app for distribution.')
+  .option('-i, --ios', 'Create an iOS bundle. [true]', true)
+  .option('-a, --android', 'Create an Android bundle. [true]', true)
+  .option('-I, --iosEntry [name]', 'iOS entry module name. [index.ios]', 'index.ios')
+  .option('-A, --androidEntry [name]', 'Android entry module name. [index.android]', 'index.android')
   .action(options => {
     const opts = options.opts();
     const server = createServer(opts);
-    const url = 'http://localhost:' + opts.port + '/index.ios.bundle';
-    const targetPath = path.resolve('./iOS/main.jsbundle');
-
     server.start();
 
-    fetch(url).then(content => {
-      fs.writeFileSync(targetPath, content);
+    const bundlePromises = _.compact(opts.entries.map(entry =>
+      entry === opts.iosEntry ?
+        createBundle(server, {
+          entryPath: `${opts.iosEntry}.bundle`,
+          targetPath: path.resolve('./ios/main.jsbundle'),
+        }) :
+      entry === opts.androidEntry ?
+        createBundle(server, {
+          entryPath: `${opts.androidEntry}.bundle`,
+          targetPath: path.resolve('./android/app/src/main/assets/index.android.bundle'),
+        }) :
+      false
+    ));
+
+    Promise.all(bundlePromises).then(() => {
       server.stop();
 
       // XXX: Hack something is keeping the process alive but we can still
