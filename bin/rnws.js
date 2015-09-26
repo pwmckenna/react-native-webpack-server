@@ -34,18 +34,18 @@ function commonOptions(program) {
     )
     .option(
       '-P, --port [port]', 
-      'Port on which the server will listen. [8080]', 
-      8080
-    )
-    .option(
-      '-p, --packagerPort [port]',
-      'Port on which the react-native packager will listen. [8081]',
+      'Port on which the server will listen. [8081]', 
       8081
     )
     .option(
-      '-w, --webpackPort [port]', 
-      'Port on which the webpack dev server will listen. [8082]', 
+      '-p, --packagerPort [port]',
+      'Port on which the react-native packager will listen. [8082]',
       8082
+    )
+    .option(
+      '-w, --webpackPort [port]', 
+      'Port on which the webpack dev server will listen. [8083]', 
+      8083
     )
     .option(
       '-c, --webpackConfigPath [path]', 
