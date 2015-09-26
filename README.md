@@ -24,8 +24,8 @@ Start the React Native Webpack Server using the included script. You might want 
 
 ```js
 "scripts": {
-  "bundle": "react-native-webpack-server bundle",
-  "start": "react-native-webpack-server start"
+  "bundle": "rnws bundle",
+  "start": "rnws start"
 }
 ```
 
@@ -46,7 +46,7 @@ npm start
 Similar to the [standard React Native packager](https://facebook.github.io/react-native/docs/running-on-device-ios.html#using-offline-bundle), you can generate an offline JS bundle to use your app without a development server:
 
 ```shell
-react-native-webpack-server bundle
+rnws bundle
 
 # OR, using the above package.json script:
 npm run bundle
